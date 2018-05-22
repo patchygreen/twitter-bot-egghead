@@ -145,7 +145,7 @@ function startStream() {
   const MAX_LIKES = 20;
   console.log('Starting stream...');
   // Streams - track a particular word or search term
-  const stream = bot.stream('statuses/filter', {track: '#javascript, #100daysofcode, #learntocode, #westbrom, #spotify', filter: 'safe'});
+  const stream = bot.stream('statuses/filter', {track: '#reactjs, #webdev, #100daysofcode, #learntocode, #westbrom, #thequietus', filter: 'safe'});
 
   stream.on('tweet', (tweet) => {
     if (tweet.lang === "en") {
@@ -161,7 +161,7 @@ function startStream() {
       });
 
       // Stop when we hit the Max Tweets
-      if (likeCount > MAX_LIKES) {
+      if (likeCount >= MAX_LIKES) {
         console.log('Stopping stream...')
         stream.stop();
       }
