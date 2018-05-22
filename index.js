@@ -6,7 +6,7 @@ const bot = new Twit({
   consumer_secret: process.env.PATCHYGREEN_TWIT_CONSUMER_SECRET,
   access_token: process.env.PATCHYGREEN_TWIT_ACCESS_TOKEN,
   access_token_secret: process.env.PATCHYGREEN_TWIT_ACCESS_SECRET,
-  timeout_ms: 60*1000
+  timeout_ms: 60 * 1000
 });
 
 // Post Example
@@ -71,40 +71,46 @@ const bot = new Twit({
 //   }
 // });
 
-// // Like a Tweet
-// bot.post('favorites/create', {id: '998547338602995712'}, (err, data, response) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(data);
-//   }
-// });
+// UnLike a Tweet
+function unlikeTweet(tweet_id) {
+  bot.post('favorites/destroy', {id: tweet_id}, (err, data, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+    }
+  });
+}
 
 // Like a Tweet
 function likeTweet(tweet_id) {
   bot.post('favorites/create', {id: tweet_id}, (err, data, response) => {
     if (err) {
-      console.log('Error, so reduce likeCount');
-      likeCount--;
+      return 0;
+    } else {
+      return 1;
     }
   });
 }
+
 //
-// // Unlike 100 tweets
-// bot.get('favorites/list', {screen_name: 'patchygreen', count: 100}, (err, data, response) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     data.forEach((d) => {
-//       console.log(d.text);
-//       console.log(d.user.screen_name);
-//       console.log(d.id_str);
-//       unlikeTweet(d.id_str);
-//       sleep.sleep(2);
-//       console.log('Deleted \n');
-//     });
-//   }
-// });
+// // Unlike tweets
+function unlikeTweets(screen_name) {
+  bot.get('favorites/list', {screen_name: screen_name, count: 200}, (err, data, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      data.forEach((d) => {
+        console.log(d.text);
+        console.log(d.user.screen_name);
+        console.log(d.id_str);
+        unlikeTweet(d.id_str);
+        sleep.sleep(2);
+        console.log('Deleted \n');
+      });
+    }
+  });
+}
+
 
 // Get a Total Number of Likes. (Max 200)
 // function totalLikes(screen_name) {
@@ -131,25 +137,43 @@ function likeTweet(tweet_id) {
 //   }
 // });
 
-let likeCount = 1;
-// Streams - track a particular word or search term
-const stream = bot.stream('statuses/filter', {track: '#javascript, #westbrom, #nme', filter: 'safe'});
 
 // Streams - follow a particular user
 // const stream = bot.stream('statuses/filter', {follow: '@javascript'});
-
 function startStream() {
+  let likeCount = 1;
+  const MAX_LIKES = 20;
+  console.log('Starting stream...');
+  // Streams - track a particular word or search term
+  const stream = bot.stream('statuses/filter', {track: '#javascript, #100daysofcode, #learntocode, #westbrom, #spotify', filter: 'safe'});
+
   stream.on('tweet', (tweet) => {
-    console.log(`${likeCount}:  ${tweet.text} \n`);
-    likeTweet(tweet.id_str);
-    likeCount++;
-    if (likeCount > 20) {
-      console.log('Stopping stream...')
-      stream.stop();
+    if (tweet.lang === "en") {
+      console.log(`${tweet.text}`);
+      // Like the tweet
+      bot.post('favorites/create', {id: tweet.id_str}, (err, data, response) => {
+        if (err) {
+          console.log(`error liking tweet: move on to next tweet in stream.\n\n`);
+        } else {
+          console.log(`tweet ${likeCount} liked\n\n`);
+          likeCount++;
+        }
+      });
+
+      // Stop when we hit the Max Tweets
+      if (likeCount > MAX_LIKES) {
+        console.log('Stopping stream...')
+        stream.stop();
+      }
+    } else {
+      console.log(`Skip non English tweets - lang: ${tweet.lang} \n\n`);
     }
   });
+
 }
 
+// unlikeTweets('patchygreen');
+// sleep.sleep(5);
 startStream();
 
 
