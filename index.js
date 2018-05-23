@@ -1,13 +1,15 @@
-const Twit = require('twit');
 const sleep = require('sleep');
+const Twit = require('twit');
+const config = require('./functions/config.js');
+const bot = new Twit(config);
 
-const bot = new Twit({
-  consumer_key: process.env.PATCHYGREEN_TWIT_CONSUMER_KEY,
-  consumer_secret: process.env.PATCHYGREEN_TWIT_CONSUMER_SECRET,
-  access_token: process.env.PATCHYGREEN_TWIT_ACCESS_TOKEN,
-  access_token_secret: process.env.PATCHYGREEN_TWIT_ACCESS_SECRET,
-  timeout_ms: 60 * 1000
-});
+// const bot = new Twit({
+//   consumer_key: process.env.PATCHYGREEN_TWIT_CONSUMER_KEY,
+//   consumer_secret: process.env.PATCHYGREEN_TWIT_CONSUMER_SECRET,
+//   access_token: process.env.PATCHYGREEN_TWIT_ACCESS_TOKEN,
+//   access_token_secret: process.env.PATCHYGREEN_TWIT_ACCESS_SECRET,
+//   timeout_ms: 60 * 1000
+// });
 
 // Post Example
 // bot.post('statuses/update', {status: 'Hello World!'}, (err, data, response) => {
@@ -145,7 +147,7 @@ function startStream() {
   const MAX_LIKES = 20;
   console.log('Starting stream...');
   // Streams - track a particular word or search term
-  const stream = bot.stream('statuses/filter', {track: '#reactjs, #webdev, #100daysofcode, #learntocode, #westbrom, #thequietus', filter: 'safe'});
+  const stream = bot.stream('statuses/filter', {track: ' squarespace, #squarespace, #reactjs, #webdev, #100daysofcode, #learntocode, #westbrom, #thequietus', filter: 'safe'});
 
   stream.on('tweet', (tweet) => {
     if (tweet.lang === "en") {
@@ -172,9 +174,9 @@ function startStream() {
 
 }
 
-// unlikeTweets('patchygreen');
+unlikeTweets('patchygreen');
 // sleep.sleep(5);
-startStream();
+// startStream();
 
 
 
